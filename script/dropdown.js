@@ -48,7 +48,7 @@ var dropdownLib = (function () {
             e.stopPropagation();
             buttonClicked($(this));
         });
-        $('.search-container .multiple-wrapper .search').on("click", function (e) {
+        $('.search-container .multiple-wrapper').on("click", function (e) {
             e.stopPropagation();
             buttonClicked($(this));
         });
@@ -84,7 +84,7 @@ var dropdownLib = (function () {
                 $(this).closest('div.dropdown-wrapper').find('input.search').val('');
                 // push the selected value to configlist selectedValue
                 if (_configList[wrapperId].callback) {
-                    for (k = 0; k < _configList[wrapperId].data.length; k++) {
+                    for (k = 0; k < _configList[wrapperId].data.length; k++) {   
                         if (_configList[wrapperId].data[k].value === listValue)
                             _configList[wrapperId].callback(_configList[wrapperId].data[k].key);
                     }
