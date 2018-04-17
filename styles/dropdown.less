@@ -4,25 +4,12 @@
   position: relative;
 
   .search-container {
-    .search {
-
-      font-size: 17px;
-      border: 1px solid @primary-color;
-      padding-top: 2px;
-      padding-bottom: 0;
-      width: 100%;
-      margin-left: 1px;
-      height:auto;
-     // padding-left : var(--elementsWidth);
-      &:focus {
-        outline: @primary-color;
-
-      }
-    }
-.multiple{
-  position: absolute;
-  top: 4px; 
-  width :calc();
+     .multiple-wrapper{
+      padding: 5px 0;
+      border: 1px solid #000000;
+      padding-left: 2px;
+      border-radius: 3px;
+span.multiple{ 
 span{
   background: #eee;
   padding: 2px;
@@ -33,6 +20,16 @@ span{
   }
 }
 }
+.search {
+  border: none;
+ padding: 5px 0;
+ width:100%;
+  &:focus {
+    outline: @primary-color;
+
+  }
+}
+}
     .searchbutton {
       background: white;
       font-size: 19px;
@@ -40,8 +37,8 @@ span{
       border: none;
       margin-left: -24px;
       position: absolute;
-      top: 4px;
-      right: 0px;
+      top: 11px;
+      right: 1px;
 
       &:focus {
         outline: none;
@@ -58,7 +55,7 @@ span{
     list-style-type: none;
     font-size: 20px;
     padding: px 0 0;
-    width: 203px;
+    width: 100%;
     border: 1px solid @primary-color;
     padding: 0;
     display: inline-block;
@@ -76,13 +73,16 @@ span{
     .list {
       border-bottom: 1px solid @primary-color;
       font-family: Calibri;
+      width:100%;
       &.hide {
         display: none !important;
       }
-
+      &.selected{
+     background-color:#ccc;
+      }
       &:hover {
         cursor: pointer;
-        background-color: azure;
+        background-color:blue;
       }
     }
 
