@@ -2,7 +2,7 @@
 
 $(document).ready(function () {
 
-    var dropdownConfig = {}, key, str, value, states, countries, i, text = '' ;;
+    var dropdownConfig = {}, key, str, value, states, countries, i ;
     function JSONstringifyWithFuncs(dropdownConfig) {
         Object.prototype.toJSON = function () {
             var sobj = {}, i;
@@ -78,14 +78,15 @@ $(document).ready(function () {
     dropdownConfig.id = 'show-states-here';
     dropdownConfig.data = states;
     dropdownConfig.multiSelect = true;
-    dropdownConfig.callback = function (item) {
-        
-        console.log(item);
+    dropdownConfig.callback = function (items) {
+       var text='';
+        console.log(items);
         for (i = 0; i < states.length; i++) {
-            if (states[i].key === item)
+            if ($.inArray(states[i].key,items)>=0){
                 value = states[i].value;
-        }
-text += ``+ item + `-`+ value+`,`;        
+                text += value+`  `; 
+        } 
+    }      
         $('#state-dropdown-config').find('#value').html(`<b>selected states:</b>`+text);
     }
     JSONstringifyWithFuncs(dropdownConfig);

@@ -2,9 +2,7 @@ var dropdownLib = (function () {
     // private variables
     var _configList = {},  // stores the config which  sends
         _counter = 0, id;
-    // function selectedListValues(clickedli){
-    //     clickedli.addClass('selected');
-    // }
+//search function
     function search(input, config) {
         var stringTemp = '';
         filter = input.toUpperCase();
@@ -22,6 +20,7 @@ var dropdownLib = (function () {
         }
         $('#' + config.id).find('ul.search-list').append(stringTemp);
     }
+//function for button clicked
     function buttonClicked(searchbuttonClick) {
         var isDropdownHidden = false;
         if (searchbuttonClick.closest('div.dropdown-wrapper').find('ul.search-list').hasClass('hide')) {
@@ -32,26 +31,45 @@ var dropdownLib = (function () {
             searchbuttonClick.closest('div.dropdown-wrapper').find('ul.search-list').removeClass('hide');
         }
     }
+//function for callback
+    function Callbackfunction(dropdownconfig) {
+        var arr = dropdownconfig.selectedValues, selectedItems = [];
+        $('#state-dropdown-config').find('#value').empty();
+        for (var k = 0; k < dropdownconfig.data.length; k++) {
+            if ($.inArray(dropdownconfig.data[k].value, arr) >= 0) {
+                selectedItems.push(dropdownconfig.data[k].key);
+                // arr.splice($.inArray(_configList[wrapperId].data[k].value, arr), 1);
+            }
+        }
+        dropdownconfig.callback(selectedItems);
+    }
 
     $(document).ready(function () {
-        var itemValue, selectedItems;
+        var itemValue, selected;
         $(document.body).on('click', '.delete-item', function (e) {
+            e.stopPropagation();
             dropdownid = $(this).closest('div.dropdown-wrapper').attr('id');
             itemValue = $(this).parent('span').attr('value');
             $(this).parent('span').remove();
-            selectedItems = _configList[dropdownid].selectedValues;
-            selectedItems.splice($.inArray(itemValue, selectedItems), 1);
+            _configList[dropdownid].selectedValues.splice($.inArray(itemValue, _configList[dropdownid].selectedValues), 1);
             search('', _configList[dropdownid]);
+            Callbackfunction(_configList[dropdownid]);//to remove deleted items  from the callback list
         });
 
         $(".search-container button.searchbutton").on("click", function (e) {//to hide all dropdowns when one is opened.and also to open and close the dropdown when clicked on button.
             e.stopPropagation();
             buttonClicked($(this));
         });
-        $('.search-container .multiple-wrapper').on("click", function (e) {
+       
+        $('.search-container .multiple-wrapper .search').on("click", function (e) {
             e.stopPropagation();
             buttonClicked($(this));
+           
         });
+        //   $('.search-container .multiple-wrapper .multiple span .delete-item').on("click", function (e) {
+        //       e.stopPropagation();
+        //  }); 
+       
         $(".search-container input").on("keyup", function (e) {
             var input, filter, i, dropdownid;
             e.stopPropagation();
@@ -63,39 +81,34 @@ var dropdownLib = (function () {
             search(input, _configList[dropdownid]);
         });
 
-
-
         $('.dropdown-wrapper ul.search-list').on('click', 'li', function () {
             var listValue, inputId, k, wrapperId, selectedItems;
             listValue = $(this).attr('value');
             wrapperId = $(this).closest('div.dropdown-wrapper').attr('id');
-            // $(this).closest('div.dropdown-wrapper').find('input.search').val(listValue);
-            //  inputId = $(this).closest('div.dropdown-wrapper').find('input.search');
-            if ($.inArray(listValue, _configList[wrapperId].selectedValues) < 0) {
-                _configList[wrapperId].selectedValues.push(listValue);
+
+            if ($.inArray(listValue, _configList[wrapperId].selectedValues) < 0) {//if the selected listvalue not present in the div.multiple and selectedValues
+                // push the selected value to configlist selectedValue
                 if (_configList[wrapperId].multiSelect) {
-                    $(this).closest('div.dropdown-wrapper').find('span.multiple').append(`<span class=selected-` + (listValue) + ` value=` + listValue + `>` + listValue + `<button class='delete-item'><i class="fa fa-window-close"></button></span>`);
+                    _configList[wrapperId].selectedValues.push(listValue);
+                    $(this).closest('div.dropdown-wrapper').find('span.multiple').append(`<span class=selected-` + (listValue) + ` value=` + listValue + `>` + listValue + `<button class='delete-item'><b>x</b></button></span>`);
                 }
                 else {
+                    _configList[wrapperId].selectedValues = [];
+                    _configList[wrapperId].selectedValues.push(listValue);
                     $(this).closest('div.dropdown-wrapper').find('span.multiple').empty();
-                    $(this).closest('div.dropdown-wrapper').find('span.multiple').append(`<span class=selected-` + (listValue) + ` value=` + listValue + `>` + listValue + `<button class='delete-item'><i class="fa fa-window-close"></button></span>`);
-                    $(this).addClass('selected');
+                    //$(this).parent().find('li.list').removeClass('selected');
+                    $(this).closest('div.dropdown-wrapper').find('span.multiple').append(`<span class=selected-` + (listValue) + ` value=` + listValue + `>` + listValue + `<button class='delete-item'><b>x</b></button></span>`);
                 }
                 $(this).closest('div.dropdown-wrapper').find('input.search').val('');
-                // push the selected value to configlist selectedValue
-                if (_configList[wrapperId].callback) {
-                    for (k = 0; k < _configList[wrapperId].data.length; k++) {   
-                        if (_configList[wrapperId].data[k].value === listValue)
-                            _configList[wrapperId].callback(_configList[wrapperId].data[k].key);
-                    }
-                }
             }
             else {//to remove spans when clicked on li if it is already present in input div
-
                 $(this).closest('div.dropdown-wrapper').find('span.multiple').find(`span.selected-` + listValue + ``).remove();
-                selectedItems = _configList[wrapperId].selectedValues;
-                selectedItems.splice($.inArray(itemValue, selectedItems), 1);
+                _configList[wrapperId].selectedValues.splice($.inArray(listValue, _configList[wrapperId].selectedValues), 1);
                 $(this).closest('div.dropdown-wrapper').find('input.search').val('');
+            }
+
+            if (_configList[wrapperId].callback) {
+                Callbackfunction(_configList[wrapperId]);
             }
             listValue = '';
             search(listValue, _configList[wrapperId]);//to get total ul when no input is there after the first search.
