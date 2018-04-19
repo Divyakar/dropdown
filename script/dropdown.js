@@ -2,7 +2,7 @@ var dropdownLib = (function () {
     // private variables
     var _configList = {},  // stores the config which  sends
         _counter = 0, id;
-//search function
+    //search function
     function search(input, config) {
         var stringTemp = '';
         filter = input.toUpperCase();
@@ -20,9 +20,10 @@ var dropdownLib = (function () {
         }
         $('#' + config.id).find('ul.search-list').append(stringTemp);
     }
-//function for button clicked
+    //function for button clicked
     function buttonClicked(searchbuttonClick) {
-        var isDropdownHidden = false;
+        var isDropdownHidden,pageHeight, inputHeight, listHeight, listOffset;
+        isDropdownHidden = false;
         if (searchbuttonClick.closest('div.dropdown-wrapper').find('ul.search-list').hasClass('hide')) {
             isDropdownHidden = true;
         }
@@ -30,8 +31,14 @@ var dropdownLib = (function () {
         if (isDropdownHidden) {
             searchbuttonClick.closest('div.dropdown-wrapper').find('ul.search-list').removeClass('hide');
         }
+        pageHeight = window.innerHeight;
+        listHeight = searchbuttonClick.closest('div.dropdown-wrapper').find('ul.search-list').height();
+        listOffset = searchbuttonClick.closest('div.dropdown-wrapper').find('ul.search-list').offset();
+        if (listHeight > (pageHeight - (listOffset.top))) {
+            searchbuttonClick.closest('div.dropdown-wrapper').find('ul.search-list').addClass('positionSet');
+        }
     }
-//function for callback
+    //function for callback
     function Callbackfunction(dropdownconfig) {
         var arr = dropdownconfig.selectedValues, selectedItems = [];
         $('#state-dropdown-config').find('#value').empty();
@@ -60,16 +67,11 @@ var dropdownLib = (function () {
             e.stopPropagation();
             buttonClicked($(this));
         });
-       
-        $('.search-container .multiple-wrapper .search').on("click", function (e) {
+
+        $('.search-container .multiple-wrapper ').on("click", function (e) {
             e.stopPropagation();
             buttonClicked($(this));
-           
         });
-        //   $('.search-container .multiple-wrapper .multiple span .delete-item').on("click", function (e) {
-        //       e.stopPropagation();
-        //  }); 
-       
         $(".search-container input").on("keyup", function (e) {
             var input, filter, i, dropdownid;
             e.stopPropagation();

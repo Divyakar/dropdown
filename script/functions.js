@@ -80,7 +80,6 @@ $(document).ready(function () {
     dropdownConfig.multiSelect = true;
     dropdownConfig.callback = function (items) {
        var text='';
-        console.log(items);
         for (i = 0; i < states.length; i++) {
             if ($.inArray(states[i].key,items)>=0){
                 value = states[i].value;
