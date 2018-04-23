@@ -64,7 +64,7 @@ $(document).ready(function () {
         { key: 'IT', value: 'Italy' },
         { key: 'JP', value: 'Japan' },
         { key: 'MY', value: 'Malaysia' },
-        { key: 'NP', value: 'NP' },
+        { key: 'NP', value: 'Nepal' },
         { key: 'PL', value: 'Poland' },
         { key: 'US', value: 'UnitedStates' },
         { key: 'UK', value: 'UnitedKingdom' },

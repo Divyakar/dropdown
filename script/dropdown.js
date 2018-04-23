@@ -11,18 +11,18 @@ var dropdownLib = (function () {
             // check if the value also exists in config.selectedValues
             if (!input || ((config.data[i].value.toUpperCase().search(filter) > -1 || config.data[i].key.search(filter) > -1))) {
                 if (($.inArray(config.data[i].value, config.selectedValues) < 0)) {
-                    stringTemp += '<li class="list"  value=' + config.data[i].value + '  key=' + config.data[i].key + '><span>' + config.data[i].value + '</span></li>';
+                    stringTemp += '<li class="list showpopup"  value=' + config.data[i].value + '  key=' + config.data[i].key + '><span>' + config.data[i].value + '</span></li>';
                 }//adding the class selecetd to add color to the clicked listitem 
                 else {
-                    stringTemp += '<li class="list selected"  value=' + config.data[i].value + '  key=' + config.data[i].key + '><span>' + config.data[i].value + '</span></li>';
+                    stringTemp += '<li class="list selected showpopup"  value=' + config.data[i].value + '  key=' + config.data[i].key + '><span>' + config.data[i].value + '</span></li>';
                 }
             }
         }
         $('#' + config.id).find('ul.search-list').append(stringTemp);
     }
     //function for button clicked
-    function buttonClicked(searchbuttonClick) {
-        var isDropdownHidden,pageHeight, inputHeight, listHeight, listOffset;
+    function toggleList(searchbuttonClick) {
+        var isDropdownHidden, pageHeight, inputHeight, listHeight, listOffset;
         isDropdownHidden = false;
         if (searchbuttonClick.closest('div.dropdown-wrapper').find('ul.search-list').hasClass('hide')) {
             isDropdownHidden = true;
@@ -30,59 +30,67 @@ var dropdownLib = (function () {
         $(document).find('ul.search-list').addClass('hide');
         if (isDropdownHidden) {
             searchbuttonClick.closest('div.dropdown-wrapper').find('ul.search-list').removeClass('hide');
+            $(".dropdown-overlay").removeClass('hide');
         }
-        pageHeight = window.innerHeight;
+        pageHeight = $('body').height();
         listHeight = searchbuttonClick.closest('div.dropdown-wrapper').find('ul.search-list').height();
         listOffset = searchbuttonClick.closest('div.dropdown-wrapper').find('ul.search-list').offset();
-        if (listHeight > (pageHeight - (listOffset.top))) {
+        if (listHeight > (pageHeight - (listOffset.top))) {//logic to show dropdown upwards when there is no place down of the page
             searchbuttonClick.closest('div.dropdown-wrapper').find('ul.search-list').addClass('positionSet');
         }
     }
     //function for callback
     function Callbackfunction(dropdownconfig) {
         var arr = dropdownconfig.selectedValues, selectedItems = [];
-        $('#state-dropdown-config').find('#value').empty();
         for (var k = 0; k < dropdownconfig.data.length; k++) {
             if ($.inArray(dropdownconfig.data[k].value, arr) >= 0) {
                 selectedItems.push(dropdownconfig.data[k].key);
                 // arr.splice($.inArray(_configList[wrapperId].data[k].value, arr), 1);
             }
         }
+
         dropdownconfig.callback(selectedItems);
+
     }
 
     $(document).ready(function () {
         var itemValue, selected;
-        $(document.body).on('click', '.delete-item', function (e) {
-            e.stopPropagation();
+        $(".dropdown-overlay").click(function () {
+            $("ul.search-list").addClass('hide');
+            $('.dropdown-overlay').addClass('hide');
+        });
+        $(document.body).on('click', '.delete-item', function () {
+          
             dropdownid = $(this).closest('div.dropdown-wrapper').attr('id');
             itemValue = $(this).parent('span').attr('value');
             $(this).parent('span').remove();
             _configList[dropdownid].selectedValues.splice($.inArray(itemValue, _configList[dropdownid].selectedValues), 1);
             search('', _configList[dropdownid]);
-            Callbackfunction(_configList[dropdownid]);//to remove deleted items  from the callback list
+            if (_configList[dropdownid].callback) {
+                Callbackfunction(_configList[dropdownid]);//to remove deleted items  from the callback list
+            }
         });
 
-        $(".search-container button.searchbutton").on("click", function (e) {//to hide all dropdowns when one is opened.and also to open and close the dropdown when clicked on button.
-            e.stopPropagation();
-            buttonClicked($(this));
+        $(".search-container button.searchbutton").on("click", function () {//to hide all dropdowns when one is opened.and also to open and close the dropdown when clicked on button.
+
+            toggleList($(this));
         });
 
-        $('.search-container .multiple-wrapper ').on("click", function (e) {
-            e.stopPropagation();
-            buttonClicked($(this));
+        $('.search-container .multiple-wrapper .search').on("click", function () {
+            $(".dropdown-overlay").removeClass('hide');
+            toggleList($(this));
         });
-        $(".search-container input").on("keyup", function (e) {
+        $(".search-container input").on("keyup", function () {
             var input, filter, i, dropdownid;
-            e.stopPropagation();
+           
+            $(".dropdown-overlay").removeClass('hide');
             if ($(this).closest('div.dropdown-wrapper').find('ul.search-list').is(':hidden')) {
-                buttonClicked($(this));
+                toggleList($(this));
             }
             input = $(this).val(); // getting entered input value
             dropdownid = $(this).closest('div.dropdown-wrapper').attr('id');//getting config id
             search(input, _configList[dropdownid]);
         });
-
         $('.dropdown-wrapper ul.search-list').on('click', 'li', function () {
             var listValue, inputId, k, wrapperId, selectedItems;
             listValue = $(this).attr('value');
@@ -92,14 +100,14 @@ var dropdownLib = (function () {
                 // push the selected value to configlist selectedValue
                 if (_configList[wrapperId].multiSelect) {
                     _configList[wrapperId].selectedValues.push(listValue);
-                    $(this).closest('div.dropdown-wrapper').find('span.multiple').append(`<span class=selected-` + (listValue) + ` value=` + listValue + `>` + listValue + `<button class='delete-item'><b>x</b></button></span>`);
+                    $(this).closest('div.dropdown-wrapper').find('span.multiple').append(`<span class="multiple-case selected-` + (listValue) + `" value=` + listValue + `>` + listValue + `<button class='delete-item'><b>x</b></button></span>` + ' ' + ``);
                 }
                 else {
                     _configList[wrapperId].selectedValues = [];
                     _configList[wrapperId].selectedValues.push(listValue);
                     $(this).closest('div.dropdown-wrapper').find('span.multiple').empty();
                     //$(this).parent().find('li.list').removeClass('selected');
-                    $(this).closest('div.dropdown-wrapper').find('span.multiple').append(`<span class=selected-` + (listValue) + ` value=` + listValue + `>` + listValue + `<button class='delete-item'><b>x</b></button></span>`);
+                    $(this).closest('div.dropdown-wrapper').find('span.multiple').append(`<span class="selected-` + (listValue) + `" value=` + listValue + `>` + listValue + `</span>`);
                 }
                 $(this).closest('div.dropdown-wrapper').find('input.search').val('');
             }
@@ -114,15 +122,10 @@ var dropdownLib = (function () {
             }
             listValue = '';
             search(listValue, _configList[wrapperId]);//to get total ul when no input is there after the first search.
+            $("ul.search-list").addClass('hide');
+            $('.dropdown-overlay').addClass('hide');
         });
 
-    });
-    $(document).click(function () {
-        $(".dropdown-wrapper ul.search-list").addClass('hide');   /* Anything that gets to the document will hide the dropdown */
-
-    });
-    $(".dropdown-wrapper ul.search-list").click(function (e) { /* Clicks within the dropdown won't make   it past the dropdown itself */
-        e.stopPropagation();
     });
     return {
         createDropdown: function (config) {
